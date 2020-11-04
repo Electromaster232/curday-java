@@ -29,26 +29,14 @@ public class Channel {
 
     private byte generateFlagBytes(){
         byte result = 0x00;
-        if(channelFlags[0] && channelFlags[1] && channelFlags[2]){
-            result = 0x66;
+        if(channelFlags[0]){
+            result = (byte) 0x40;
         }
-        else if(channelFlags[0] && channelFlags[1]){
-            result = 0x44;
+        if(channelFlags[1]){
+            result = (byte) (result | (byte) 0x04);
         }
-        else if(channelFlags[1] && channelFlags[2]){
-            result = 0x06;
-        }
-        else if(channelFlags[0] && channelFlags[2]){
-            result = 0x42;
-        }
-        else if(channelFlags[0]){
-            result = 0x40;
-        }
-        else if(channelFlags[1]){
-            result = 0x04;
-        }
-        else if(channelFlags[2]){
-            result = 0x02;
+        if(channelFlags[2]){
+            result = (byte) (result | (byte) 0x02);
         }
         return result;
     }

@@ -8,6 +8,7 @@ public class Channel {
     private int channelID;
     private String channelName;
     private String callsign;
+    private boolean[] channelFlags = new boolean[3];
 
     private ArrayList<Program> programs = new ArrayList<>();
 
@@ -17,9 +18,39 @@ public class Channel {
         channelName = channel;
     }
 
+    public void setChannelFlags(boolean... Flags){
+        channelFlags = Flags;
+    }
+
     public Channel addProgram(Program p1){
         programs.add(p1);
         return this;
+    }
+
+    private byte generateFlagBytes(){
+        byte result = 0x00;
+        if(channelFlags[0] && channelFlags[1] && channelFlags[2]){
+            result = 0x66;
+        }
+        else if(channelFlags[0] && channelFlags[1]){
+            result = 0x44;
+        }
+        else if(channelFlags[1] && channelFlags[2]){
+            result = 0x06;
+        }
+        else if(channelFlags[0] && channelFlags[2]){
+            result = 0x42;
+        }
+        else if(channelFlags[0]){
+            result = 0x40;
+        }
+        else if(channelFlags[1]){
+            result = 0x04;
+        }
+        else if(channelFlags[2]){
+            result = 0x02;
+        }
+        return result;
     }
 
     public byte[] toBytes() throws IOException {
@@ -28,8 +59,8 @@ public class Channel {
         b1.write(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
         b1.write(String.valueOf(channelName).getBytes());
         b1.write(0x00);
-        b1.write(String.valueOf(" " + callsign).getBytes());
-        b1.write(new byte[]{0x00, 0x00, 0x00, 0x00, (byte) 0x81, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00,0x00,0x00,0x00, 0x00, 0x00, (byte) 0x8A, (byte) 0xFF, (byte) 0xFF, 0x30, 0x30, 0x00, 0x00, 0x03});
+        b1.write((" " + callsign).getBytes());
+        b1.write(new byte[]{0x00, 0x00, 0x00, 0x00, generateFlagBytes(), (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00,0x00,0x00,0x00, 0x00, 0x00, (byte) 0x8A, (byte) 0xFF, (byte) 0xFF, 0x30, 0x30, 0x00, 0x00, 0x03});
         b1.write(String.valueOf(channelName).getBytes());
         b1.write(0x00);
         for(Program r : programs){

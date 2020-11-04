@@ -16,6 +16,7 @@ public class Genday {
         Channel c1 = new Channel(1, "TST", "TST001");
         c1.addProgram(new Program(LocalDateTime.now(), "Yes", d1));
         c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "AAAA", d1));
+        c1.setChannelFlags(false, true, true);
         d1.addChannel(c1);
         writeByte(d1.toBytes());
 

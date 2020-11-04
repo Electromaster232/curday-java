@@ -10,6 +10,7 @@ public class Program {
     private String programName;
     private int timezone;
 
+
     public Program(LocalDateTime date, String string, Datfile d1){
         timeslot = date;
         programName = string;
@@ -19,6 +20,8 @@ public class Program {
     public LocalDateTime getTimeslot(){return timeslot;}
 
     public String getProgramName(){return programName;}
+
+
 
     public byte[] toBytes() throws IOException {
         ByteArrayOutputStream b1 = new ByteArrayOutputStream();
@@ -39,6 +42,7 @@ public class Program {
         return b1.toByteArray();
 
     }
+
 
     private static LocalDateTime getNearestHourQuarter(LocalDateTime datetime) {
 

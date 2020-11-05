@@ -1,25 +1,54 @@
 package me.djelectro.genday;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class Genday {
     static String FILEPATH = "curday.dat";
     static File file = new File(FILEPATH);
 
-    public static void main(String[] args) throws IOException {
-        Datfile d1 = new Datfile(7, false, "PHIL", "Philadelphia");
-        Channel c1 = new Channel(1, "TST", "TST001");
-        c1.addProgram(new Program(LocalDateTime.now(), "Yes", d1));
-        c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "AAAA", d1));
-        c1.setChannelFlags(false, true, true);
-        d1.addChannel(c1);
-        writeByte(d1.toBytes());
-
+    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
+        Datfile d1 = new Datfile(6, false, "PHIL", "Philadelphia");
+        DocumentBuilderFactory factory =
+                DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new BufferedInputStream(new URL("https://djelectro.endl.site/tv/buildxml.php?action=raw").openStream()));
+        //Element root = doc.getDocumentElement();
+        NodeList nList = doc.getElementsByTagName("channel");
+        for (int temp = 0; temp < nList.getLength(); temp++) {
+            Node nNode = nList.item(temp);
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) nNode;
+                Channel c1 = new Channel(1, "TST", "TST001");
+                NodeList nList1 = doc.getElementsByTagName("programme");
+                for (int temp1 = 0; temp1 < nList1.getLength(); temp1++) {
+                    Node nNode1 = nList1.item(temp1);
+                    if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eElement1 = (Element) nNode1;
+                        if (Integer.parseInt(eElement1.getAttribute("channel")) == Integer.parseInt(eElement.getAttribute("id"))) {
+                            System.out.println(eElement1.getAttribute("start"));
+                            c1.addProgram(new Program(LocalDateTime.now(), eElement1.getElementsByTagName("title").item(0).getTextContent(), d1));
+                        }
+                    }
+                }
+                //c1.addProgram(new Program(LocalDateTime.now(), "Yes", d1));
+                //c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "AAAA", d1));
+                c1.setChannelFlags(false, true, true);
+                d1.addChannel(c1);
+                writeByte(d1.toBytes());
+            }
+        }
     }
 
     static void writeByte(byte[] bytes)

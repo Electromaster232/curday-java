@@ -31,6 +31,9 @@ public class Genday {
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
                 Channel c1 = new Channel(1, "TST", "TST001");
+                String flags = eElement.getElementsByTagName("flags").item(0).getTextContent();
+                String[] flags2 = flags.split(",");
+                c1.setChannelFlags((Integer.parseInt(flags2[0]) == 1), (Integer.parseInt(flags2[1]) == 1), (Integer.parseInt(flags2[2]) == 1));
                 NodeList nList1 = doc.getElementsByTagName("programme");
                 for (int temp1 = 0; temp1 < nList1.getLength(); temp1++) {
                     Node nNode1 = nList1.item(temp1);
@@ -38,13 +41,14 @@ public class Genday {
                         Element eElement1 = (Element) nNode1;
                         if (Integer.parseInt(eElement1.getAttribute("channel")) == Integer.parseInt(eElement.getAttribute("id"))) {
                             System.out.println(eElement1.getAttribute("start"));
-                            c1.addProgram(new Program(LocalDateTime.now(), eElement1.getElementsByTagName("title").item(0).getTextContent(), d1));
+                            c1.addProgram(new Program(LocalDateTime.parse(eElement1.getAttribute("start"), DateTimeFormatter.ofPattern("yyyyMMddHHmmss Z")), eElement1.getElementsByTagName("title").item(0).getTextContent() + " " + eElement1.getElementsByTagName("desc").item(0).getTextContent(), d1));
+                            //c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "FML!", d1));
                         }
                     }
                 }
                 //c1.addProgram(new Program(LocalDateTime.now(), "Yes", d1));
                 //c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "AAAA", d1));
-                c1.setChannelFlags(false, true, true);
+
                 d1.addChannel(c1);
                 writeByte(d1.toBytes());
             }

@@ -3,9 +3,10 @@ package me.djelectro.genday;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
-public class Program {
+public class Program implements Comparable<Program>{
     private LocalDateTime timeslot;
     private String programName;
     private int timezone;
@@ -22,10 +23,9 @@ public class Program {
     public String getProgramName(){return programName;}
 
 
-
     public byte[] toBytes() throws IOException {
         ByteArrayOutputStream b1 = new ByteArrayOutputStream();
-        int timenum = getCorrectedTimeslot(Timeslots.valueOf(getNearestHourQuarter(timeslot).toLocalTime()));
+        int timenum = getFinalTimeslotNum();
         //int timenum = 33;
         b1.write(String.valueOf(timenum).getBytes());
         b1.write(0x00);
@@ -43,8 +43,12 @@ public class Program {
 
     }
 
+    public int getFinalTimeslotNum(){
+        return getCorrectedTimeslot(Timeslots.valueOf(getNearestHourQuarter(timeslot)));
+    }
 
-    private static LocalDateTime getNearestHourQuarter(LocalDateTime datetime) {
+
+    private LocalTime getNearestHourQuarter(LocalDateTime datetime) {
 
         int minutes = datetime.getMinute();
         LocalDateTime newDatetime = datetime;
@@ -54,14 +58,13 @@ public class Program {
         else if(minutes < 30){
             newDatetime = datetime.minusMinutes(minutes);
         }
-        newDatetime = newDatetime.truncatedTo(ChronoUnit.MINUTES);
 
-        return newDatetime;
+        return newDatetime.toLocalTime().truncatedTo(ChronoUnit.MINUTES);
     }
 
     private int getCorrectedTimeslot(int baseTimeslot){
         int finalTimeslot;
-        finalTimeslot = baseTimeslot - ((timezone - 1) * 2);
+        finalTimeslot = (baseTimeslot) - ((timezone) * 2);
 
         if(finalTimeslot > 48){
             finalTimeslot = finalTimeslot - 48;
@@ -71,7 +74,11 @@ public class Program {
         }
 
         return finalTimeslot;
+
     }
 
-
+    @Override
+    public int compareTo(Program o) {
+        return (this.getFinalTimeslotNum() - o.getFinalTimeslotNum());
+    }
 }

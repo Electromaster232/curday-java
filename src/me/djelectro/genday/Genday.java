@@ -19,10 +19,12 @@ import java.time.temporal.ChronoUnit;
 public class Genday {
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
-        genCurday("curday.dat", "https://djelectro.endl.site/tv/buildxml.php?action=raw", 6, false, "PHIL", "Philadelphia");
+        String res = genCurday("curday.dat", "https://djelectro.endl.site/tv/buildxml.php?action=raw", 6, false, "PHIL", "Philadelphia");
+        System.out.println(res);
     }
 
-    public static void genCurday(String filename, String xmlURL, int timezone, boolean daylightSavings, String airportName, String fullCity) throws ParserConfigurationException, IOException, SAXException {
+    public static String genCurday(String filename, String xmlURL, int timezone, boolean daylightSavings, String airportName, String fullCity) throws ParserConfigurationException, IOException, SAXException {
+        StringBuilder s1 = new StringBuilder();
         Datfile d1 = new Datfile(timezone, daylightSavings, airportName, fullCity);
         DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
@@ -44,7 +46,8 @@ public class Genday {
                     if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
                         Element eElement1 = (Element) nNode1;
                         if (Integer.parseInt(eElement1.getAttribute("channel")) == Integer.parseInt(eElement.getAttribute("id"))) {
-                            System.out.println(eElement1.getAttribute("start"));
+                            s1.append(eElement1.getAttribute("start"));
+                            s1.append("\n");
                             LocalDateTime startTime = LocalDateTime.parse(eElement1.getAttribute("start"), DateTimeFormatter.ofPattern("yyyyMMddHHmmss Z"));
                             LocalDateTime endTime = LocalDateTime.parse(eElement1.getAttribute("stop"), DateTimeFormatter.ofPattern("yyyyMMddHHmmss Z"));
                             if(LocalDateTime.now().isAfter(endTime)){
@@ -65,10 +68,11 @@ public class Genday {
                 d1.addChannel(c1);
             }
         }
-        writeByte(d1.toBytes(), filename);
+        writeByte(d1.toBytes(), filename, s1);
+        return s1.toString();
     }
 
-    static void writeByte(byte[] bytes, String filepath)
+    static void writeByte(byte[] bytes, String filepath, StringBuilder s1)
     {
         File file = new File(filepath);
         try {
@@ -81,15 +85,17 @@ public class Genday {
 
             // Starts writing the bytes in it
             os.write(bytes);
-            System.out.println("Successfully"
+            s1.append("Successfully"
                     + " byte inserted");
+            s1.append("\n");
 
             // Close the file
             os.close();
         }
 
         catch (Exception e) {
-            System.out.println("Exception: " + e);
+            s1.append("Exception: ").append(e);
+            s1.append("\n");
         }
     }
 }

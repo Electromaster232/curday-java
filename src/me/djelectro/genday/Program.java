@@ -44,38 +44,13 @@ public class Program implements Comparable<Program>{
     }
 
     public int getFinalTimeslotNum(){
-        return getCorrectedTimeslot(Timeslots.valueOf(getNearestHourQuarter(timeslot)));
+        return Timeslots.getCorrectedTimeslot(Timeslots.valueOf(Timeslots.getNearestHourQuarter(timeslot)), timezone);
     }
 
 
-    private LocalTime getNearestHourQuarter(LocalDateTime datetime) {
 
-        int minutes = datetime.getMinute();
-        LocalDateTime newDatetime = datetime;
-        if(minutes > 30){
-             newDatetime = datetime.plusHours(1).minusMinutes(minutes);
-        }
-        else if(minutes < 30){
-            newDatetime = datetime.minusMinutes(minutes);
-        }
 
-        return newDatetime.toLocalTime().truncatedTo(ChronoUnit.MINUTES);
-    }
 
-    private int getCorrectedTimeslot(int baseTimeslot){
-        int finalTimeslot;
-        finalTimeslot = (baseTimeslot) - ((timezone) * 2);
-
-        if(finalTimeslot > 48){
-            finalTimeslot = finalTimeslot - 48;
-        }
-        else if(finalTimeslot <= 0){
-            finalTimeslot = finalTimeslot + 48;
-        }
-
-        return finalTimeslot;
-
-    }
 
     @Override
     public int compareTo(Program o) {

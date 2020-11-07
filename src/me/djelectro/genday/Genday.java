@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class Genday {
     static String FILEPATH = "curday.dat";
@@ -41,7 +42,16 @@ public class Genday {
                         Element eElement1 = (Element) nNode1;
                         if (Integer.parseInt(eElement1.getAttribute("channel")) == Integer.parseInt(eElement.getAttribute("id"))) {
                             System.out.println(eElement1.getAttribute("start"));
-                            c1.addProgram(new Program(LocalDateTime.parse(eElement1.getAttribute("start"), DateTimeFormatter.ofPattern("yyyyMMddHHmmss Z")), eElement1.getElementsByTagName("title").item(0).getTextContent() + " " + eElement1.getElementsByTagName("desc").item(0).getTextContent(), d1));
+                            LocalDateTime startTime = LocalDateTime.parse(eElement1.getAttribute("start"), DateTimeFormatter.ofPattern("yyyyMMddHHmmss Z"));
+                            LocalDateTime endTime = LocalDateTime.parse(eElement1.getAttribute("stop"), DateTimeFormatter.ofPattern("yyyyMMddHHmmss Z"));
+                            if(LocalDateTime.now().isAfter(endTime)){
+                                continue;
+                            }
+                            //if(Timeslots.getCorrectedTimeslot(Timeslots.valueOf(Timeslots.getNearestHourQuarter(startTime)), d1.getTimezone()) < Timeslots.getCorrectedTimeslot(Timeslots.valueOf(Timeslots.getNearestHourQuarter(LocalDateTime.now())), d1.getTimezone())){
+                            if(LocalDateTime.now().plusHours(1).isAfter(startTime)){
+                                startTime = LocalDateTime.now();
+                            }
+                            c1.addProgram(new Program(startTime, eElement1.getElementsByTagName("title").item(0).getTextContent() + " " + eElement1.getElementsByTagName("desc").item(0).getTextContent(), d1));
                             //c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "FML!", d1));
                         }
                     }
@@ -50,9 +60,9 @@ public class Genday {
                 //c1.addProgram(new Program(LocalDateTime.now().plusHours(1), "AAAA", d1));
 
                 d1.addChannel(c1);
-                writeByte(d1.toBytes());
             }
         }
+        writeByte(d1.toBytes());
     }
 
     static void writeByte(byte[] bytes)

@@ -1,5 +1,7 @@
 package me.djelectro.genday;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,6 +78,35 @@ public enum Timeslots {
 
     public LocalTime getValue() {
         return time1;
+    }
+
+    public static int getCorrectedTimeslot(int baseTimeslot, int timezone){
+        int finalTimeslot;
+        finalTimeslot = (baseTimeslot) - ((timezone) * 2);
+
+        if(finalTimeslot > 48){
+            finalTimeslot = finalTimeslot - 48;
+        }
+        else if(finalTimeslot <= 0){
+            finalTimeslot = finalTimeslot + 48;
+        }
+
+        return finalTimeslot;
+
+    }
+
+    public static LocalTime getNearestHourQuarter(LocalDateTime datetime) {
+
+        int minutes = datetime.getMinute();
+        LocalDateTime newDatetime = datetime;
+        if(minutes > 30){
+            newDatetime = datetime.plusHours(1).minusMinutes(minutes);
+        }
+        else if(minutes < 30){
+            newDatetime = datetime.minusMinutes(minutes);
+        }
+
+        return newDatetime.toLocalTime().truncatedTo(ChronoUnit.MINUTES);
     }
 
 }

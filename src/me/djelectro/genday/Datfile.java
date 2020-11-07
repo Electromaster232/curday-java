@@ -10,6 +10,7 @@ public class Datfile {
     private boolean daylightSavings;
     private String airportName;
     private String city;
+    private int jDay;
 
     private ArrayList<Channel> channels = new ArrayList<>();
 
@@ -18,6 +19,10 @@ public class Datfile {
         daylightSavings = ds;
         airportName = an;
         city = cy;
+        jDay = LocalDate.now().getDayOfYear() - 1;
+        if (jDay > 255){
+            jDay = jDay - 255;
+        }
     }
 
     public Channel addChannel(Channel c1){
@@ -40,13 +45,9 @@ public class Datfile {
         b1.write(0x00);
         b1.write(city.getBytes());
         b1.write(0x00);
-        int jDay = LocalDate.now().getDayOfYear() - 1;
-        if (jDay > 255){
-            jDay = jDay - 255;
-        }
         b1.write((jDay + "").getBytes());
         b1.write(0x00);
-        b1.write(String.valueOf(channels.size() + 1).getBytes());
+        b1.write(String.valueOf(channels.size()).getBytes());
         b1.write(0x00);
         b1.write("131".getBytes());
         b1.write(0x00);

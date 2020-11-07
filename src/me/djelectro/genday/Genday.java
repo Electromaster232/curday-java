@@ -30,7 +30,7 @@ public class Genday {
             Node nNode = nList.item(temp);
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
-                Channel c1 = new Channel(1, "TST", "TST001");
+                Channel c1 = new Channel(Integer.parseInt(eElement.getAttribute("id")), eElement.getElementsByTagName("callsign").item(0).getTextContent(), eElement.getElementsByTagName("callsign").item(0).getTextContent());
                 String flags = eElement.getElementsByTagName("flags").item(0).getTextContent();
                 String[] flags2 = flags.split(",");
                 c1.setChannelFlags((Integer.parseInt(flags2[0]) == 1), (Integer.parseInt(flags2[1]) == 1), (Integer.parseInt(flags2[2]) == 1));

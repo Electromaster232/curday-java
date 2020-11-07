@@ -10,21 +10,24 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class Genday {
-    static String FILEPATH = "curday.dat";
-    static File file = new File(FILEPATH);
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
-        Datfile d1 = new Datfile(6, false, "PHIL", "Philadelphia");
+        genCurday("curday.dat", "https://djelectro.endl.site/tv/buildxml.php?action=raw", 6, false, "PHIL", "Philadelphia");
+    }
+
+    public static void genCurday(String filename, String xmlURL, int timezone, boolean daylightSavings, String airportName, String fullCity) throws ParserConfigurationException, IOException, SAXException {
+        Datfile d1 = new Datfile(timezone, daylightSavings, airportName, fullCity);
         DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(new BufferedInputStream(new URL("https://djelectro.endl.site/tv/buildxml.php?action=raw").openStream()));
+        Document doc = builder.parse(new BufferedInputStream(new URL(xmlURL).openStream()));
         //Element root = doc.getDocumentElement();
         NodeList nList = doc.getElementsByTagName("channel");
         for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -62,11 +65,12 @@ public class Genday {
                 d1.addChannel(c1);
             }
         }
-        writeByte(d1.toBytes());
+        writeByte(d1.toBytes(), filename);
     }
 
-    static void writeByte(byte[] bytes)
+    static void writeByte(byte[] bytes, String filepath)
     {
+        File file = new File(filepath);
         try {
 
             // Initialize a pointer
